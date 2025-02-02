@@ -1,0 +1,43 @@
+version: '2'
+services:
+  Apache2SSL:
+    image: rightctrl/php:7.0
+    ports:
+      - "81:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - ./public:/var/www/www_example.com/public_html
+      - ./logs:/var/www/www_example.com/logs
+      - ./php.ini:/etc/php.ini
+    environment:
+      ENVIRONMENT: "production"
+      servn: "example.com"
+      cname: "www"
+      TIMEZONE: 'Asia/Tokyo'
+      SUBJ: '/C=IN/ST=Kerala/L=MarketPlace/commonName=*.example.com'
+      PASSPHRASE: ""
+  react-app:
+    build:
+      context: .
+      dockerfile: Dockerfile_react_node  # Use your Dockerfile for React
+    ports:
+      - "3000:3000"  # Map the container's port 3000 to your machine
+    volumes:
+      - ./react-mip:/react-mip  # Mount local files into container
+      - /react-mip/node_modules  # Prevents overriding node_modules in the container
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Ensure file system watches work with Docker
+    restart: always
+
+# react-app:
+#     build: 
+#       context: .
+#       dockerfile: Dockerfile_react_nginx  # Using your custom Dockerfile name
+#     ports:
+#       - "3000:80"
+#     restart: always
+#     depends_on:
+#       - Apache2SSL 
+
+

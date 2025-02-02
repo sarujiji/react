@@ -1,0 +1,35 @@
+# Use official Node.js image as the base image
+FROM node:20-alpine AS build
+
+# Set working directory
+WORKDIR /react-mip
+
+# Copy package.json and package-lock.json
+COPY ./react-mip/package.json ./react-mip/package-lock.json ./
+
+# Install dependencies
+RUN npm install
+
+# Debugging: Check if node_modules exist
+RUN ls -la node_modules || echo "node_modules not found!"
+
+# Copy the application source
+COPY ./react-mip/ .
+
+# Set memory limit to prevent build failures
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+
+# Build the React app
+RUN npm run build
+
+# Use Nginx to serve the React app
+FROM nginx:alpine
+
+# Copy the built React app from the previous stage
+COPY --from=build /react-mip/build /usr/share/nginx/html
+
+# Expose the port on which Nginx runs
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]

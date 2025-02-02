@@ -1,0 +1,20 @@
+# Use official Node.js image for development
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /react-mip
+
+# Copy package.json and package-lock.json
+COPY ./react-mip/package.json ./react-mip/package-lock.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the application source
+COPY ./react-mip/ .
+
+# Expose port for the React app
+EXPOSE 3000
+
+# Start React development server (which supports hot reloading)
+CMD ["npm", "start"]
